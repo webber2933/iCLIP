@@ -1,0 +1,74 @@
+MODEL:
+  WEIGHT: "data/models/pretrained_models/SlowFast-ResNet50-4x16.pth"
+  BACKBONE:
+    CONV_BODY: "Slowfast-Resnet50"
+    FROZEN_BN: True
+    SLOWFAST:
+      BETA: 0.125
+      LATERAL: "tconv"
+      SLOW:
+        ACTIVE: True
+        CONV3_NONLOCAL: False
+        CONV4_NONLOCAL: False
+      FAST:
+        ACTIVE: True
+        CONV3_NONLOCAL: False
+        CONV4_NONLOCAL: False
+  NONLOCAL:
+    USE_ZERO_INIT_CONV: False
+    BN_INIT_GAMMA: 0.0
+    FROZEN_BN: True
+  ROI_ACTION_HEAD:
+    FEATURE_EXTRACTOR: "2MLPFeatureExtractor"
+    PROPOSAL_PER_CLIP: 10
+    DROPOUT_RATE: 0.2
+    PREFIX_LEN: 16
+    POSTFIX_LEN: 16
+  ICLIP_STRUCTURE:
+    ACTIVE: True
+    STRUCTURE: "serial"
+    DROPOUT: 0.2
+    TEMPORAL_POSITION: True
+    USE_ZERO_INIT_CONV: True
+    LAYER_NORM: True
+    MAX_PERSON: 25
+    MAX_KEYPOINTS: 25 # 10
+    MAX_OBJECT: 5
+    MAX_PER_SEC: 10 # 10
+    DIM_INNER: 1024
+    DIM_OUT: 2304
+    I_BLOCK_LIST: [ "P", "O", "H", "M", "P", "O", "H", "M",]
+INPUT:
+  FRAME_NUM: 32
+  FRAME_SAMPLE_RATE: 1
+  TAU: 4
+  ALPHA: 1
+  SLOW_JITTER: True
+  COLOR_JITTER: True
+DATASETS:
+  TRAIN: ("jhmdb_train",)
+  TEST: ("jhmdb_val",)
+DATASET_LABEL: "data/jhmdb/label_split/train_label.txt"
+TESTSET_LABEL: "data/jhmdb/label_split/test_label.txt"
+DATASET_VIDEO: "data/jhmdb/label_split/train_video.txt"
+TESTSET_VIDEO: "data/jhmdb/label_split/test_video.txt"
+DATALOADER:
+  NUM_WORKERS: 8
+  SIZE_DIVISIBILITY: 16
+SOLVER:
+  BASE_LR: 0.0002 #0.0002
+  WARMUP_FACTOR: 0.25
+  BIAS_LR_FACTOR: 2
+  IA_LR_FACTOR: 10.0
+  WEIGHT_DECAY: 1e-7
+  STEPS: (20000, 25000)
+  WARMUP_ITERS: 700
+  MAX_ITER: 7000
+  CHECKPOINT_PERIOD: 1000
+  EVAL_PERIOD: 25000
+  VIDEOS_PER_BATCH: 8
+TEST:
+  BOX_THRESH: 0.2
+  ACTION_THRESH: 0.
+  VIDEOS_PER_BATCH: 8
+OUTPUT_DIR: "data/output/dense_serial_debug"
